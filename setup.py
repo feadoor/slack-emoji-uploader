@@ -37,7 +37,8 @@ setup(
     package_dir={'': SOURCE},
     install_requires=[
         'requests',
-        'beautifulsoup4'
+        'beautifulsoup4',
+        'click',
     ],
     entry_points={
         'console_scripts': [

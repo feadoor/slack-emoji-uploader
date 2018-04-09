@@ -16,8 +16,8 @@ class EmojiUploader:
 
     def __init__(self, subdomain, email, password):
         self.session = SlackSession(subdomain, email, password)
-        self._upload_url = _upload_url()
-        self.base_form_data = self._base_form_data()
+        self._upload_url = _upload_url(subdomain)
+        self._base_form_data = self._base_form_data()
 
     def upload(self, emoji_name, emoji_file):
         """

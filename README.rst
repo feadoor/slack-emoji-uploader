@@ -34,7 +34,40 @@ on other versions too!
 Usage
 -----
 
-TODO
+You run the tool on the command line, passing the filenames of the emoji
+that you want to upload:
+
+.. code-block:: console
+
+    $ slackmoji images/emoji.png
+    $ slackmoji images/*.png
+
+The tool will then prompt you for your Slack subdomain, your email address
+and your password before uploading each of your emoji.You can also pass some
+or all of this information using the following syntaxes:
+
+.. code-block:: console
+
+    $ slackmoji images/emoji.png --subdomain sub --email e@mail.com --password abcdef
+    $ slackmoji images/emoji.png -s sub -e e@mail.com -p abcdef
+
+For usage information, see also:
+
+.. code-block:: console
+
+    $ slackmoji --help
+
+Caveats
+-------
+
+* This tool does not use any of Slack's documented APIs, and as such, it is
+  entirely possible that an update to Slack could cause this tool to simply
+  stop working.
+
+* Be aware that the emoji you upload must conform to Slack's rules for custom emoji:
+
+  - No more than 128px in width or heigh
+  - No more than 64K in size
 
 License
 -------
