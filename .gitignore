@@ -1,0 +1,13 @@
+# Dev environment
+Pipfile.lock
+.python-version
+
+# Python build artifacts
+*.egg-info
+*.pyc
+*.pyo
+__pycache__
+
+# Test output
+.pytest_cache
+.tox
