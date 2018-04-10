@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup as BSoup
 from copy import copy
 from requests import codes
 
-from .beautiful_soup_helper import get_input_value
+from .beautiful_soup_helper import get_input_value, get_page_error
 from .slack_session import SlackSession
 
 
@@ -31,12 +31,15 @@ class EmojiUploader:
             files = {'img': file}
             upload = self.session.post(self._upload_url,
                                        data=form_data,
-                                       files=files)
+                                       files=files,
+                                       allow_redirects=False)
 
         # Checking for a 302 response, rather than a 200, seems to be the most
         # reliable way of determining if the upload succeeded
         if upload.status_code != codes.found:
-            raise UploadFailedException()
+            parsed_response = BSoup(upload.text, 'html.parser')
+            message = get_page_error(parsed_response)
+            raise UploadFailedException(message)
 
     def _base_form_data(self):
         """
@@ -61,4 +64,8 @@ def _upload_url(subdomain):
 
 
 class UploadFailedException(Exception):
-    pass
+
+    def __init__(self, message):
+        super(UploadFailedException, self).__init__(
+            message if message is not None else 'Unknown error'
+        )
