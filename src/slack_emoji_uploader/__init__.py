@@ -3,6 +3,7 @@
 
 import click
 from collections import namedtuple
+from glob import glob
 import os
 import sys
 
@@ -35,8 +36,8 @@ def create_uploader(subdomain, email, password):
         click.echo('\nObtaining cookies and crumbs from Slack...')
         emoji_uploader = EmojiUploader(subdomain, email, password)
     except NoSuchSubdomainException:
-        message = 'It looks like the subdomain {subdomain} doesn\'t exist!' \
-            .format(subdomain=subdomain)
+        message = 'It looks like the subdomain {} doesn\'t exist!' \
+            .format(subdomain)
         exit(EXIT_CODE_NO_SUCH_SUBDOMAIN, message)
     except InvalidCredentialsException:
         message = 'Those credentials appear to be invalid!'
@@ -53,19 +54,38 @@ def get_emoji_name(filename):
     return os.path.splitext(os.path.basename(filename))[0]
 
 
+def get_files_to_upload(pattern):
+    """
+    Get a list of all files to upload that match the given pattern.
+    """
+    return glob(pattern)
+
+
 def upload_emoji(emoji_uploader, emoji_name, emoji_file):
     """
     Attempt to upload the given emoji.
     """
-    click.echo('Uploading emoji {name}... '.format(name=emoji_name), nl=False)
+    click.echo('Uploading emoji {}... '.format(emoji_name), nl=False)
     try:
         emoji_uploader.upload(emoji_name, emoji_file)
         click.echo(click.style('Done!', fg='green', bold=True))
     except UploadFailedException as e:
         error = str(e)
-        click.echo(click.style('Failed! ({error})'.format(error=error),
+        click.echo(click.style('Failed! ({})'.format(error),
                                fg='red', bold=True))
         emoji_uploader.failed_uploads.append(FailedUpload(emoji_name, error))
+
+
+def upload_all(emoji_uploader, emoji_file_pattern):
+    """
+    Upload all emoji from files matching the given pattern.
+    """
+    emoji_files = get_files_to_upload(emoji_file_pattern)
+    if not emoji_files:
+        click.echo('Skipping {} - no files found'.format(emoji_file_pattern))
+    for emoji_file in emoji_files:
+        emoji_name = get_emoji_name(emoji_file)
+        upload_emoji(emoji_uploader, emoji_name, emoji_file)
 
 
 def summarize_results(failed_uploads):
@@ -76,12 +96,12 @@ def summarize_results(failed_uploads):
     if failed_uploads:
         click.echo('The following emoji could not be uploaded:\n')
         for failure in failed_uploads:
-            click.echo('{name}: '.format(name=failure.emoji_name), nl=False)
+            click.echo('{}: '.format(failure.emoji_name), nl=False)
             click.echo(click.style(failure.error, fg='red', bold=True))
 
 
 @click.command()
-@click.argument('emoji_files', type=click.Path(exists=True), nargs=-1)
+@click.argument('emoji_files', type=click.STRING, nargs=-1, required=True)
 @click.option('--subdomain', '-s', type=click.STRING,
               help='Your Slack subdomain',
               prompt='Please enter your Slack subdomain')
@@ -104,9 +124,8 @@ def main(emoji_files, subdomain, email, password):
     emoji_uploader = create_uploader(subdomain, email, password)
 
     # Upload each of the given emoji, in turn
-    for emoji_file in emoji_files:
-        emoji_name = get_emoji_name(emoji_file)
-        upload_emoji(emoji_uploader, emoji_name, emoji_file)
+    for emoji_file_pattern in emoji_files:
+        upload_all(emoji_uploader, emoji_file_pattern)
 
     # Output a summary of the run
     summarize_results(emoji_uploader.failed_uploads)

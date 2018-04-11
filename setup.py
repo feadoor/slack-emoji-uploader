@@ -39,6 +39,7 @@ setup(
         'requests',
         'beautifulsoup4',
         'click',
+        'colorama',
     ],
     entry_points={
         'console_scripts': [

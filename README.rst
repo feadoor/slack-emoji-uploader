@@ -39,7 +39,7 @@ that you want to upload:
 
 .. code-block:: console
 
-    $ slackmoji images/emoji.png
+    $ slackmoji images/emoji1.png images/emoji2.png
     $ slackmoji images/*.png
 
 The tool will then prompt you for your Slack subdomain, your email address
