@@ -43,8 +43,8 @@ that you want to upload:
     $ slackmoji images/*.png
 
 The tool will then prompt you for your Slack subdomain, your email address
-and your password before uploading each of your emoji. You can also pass some
-or all of this information using the following syntaxes:
+and your password before uploading each of your emoji. You can also pass in
+this information during the command invocation:
 
 .. code-block:: console
 
